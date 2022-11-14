@@ -259,14 +259,14 @@ hassio_install(){
     while true ; do
         [[ $x -eq 10 ]] && error "获取 hassio 官方一键脚本失败，请检查你系统网络与 https://code.aliyun.com/ 的连接是否正常。"
         warn "下载 hassio_install.sh 官方脚本 第${x}次"
-        download_file 'https://code.aliyun.com/neroxps/supervised-installer/raw/master/installer.sh' 'hassio_install.sh'
+        download_file 'https://github.com/laohuang112/supervised-installer/raw/master/installer.sh' 'hassio_install.sh'
         grep -q '#!/usr/bin/env bash' hassio_install.sh && break
         ((x++))
     done
     chmod u+x hassio_install.sh
     sed -i "s/HASSIO_VERSION=.*/HASSIO_VERSION=${hassio_version}/g" ./hassio_install.sh
     # 替换链接到阿里云加速
-    sed -i 's@https://raw.githubusercontent.com/home-assistant/supervised-installer/master/@https://code.aliyun.com/neroxps/supervised-installer/raw/master/@g' ./hassio_install.sh
+    sed -i 's@https://raw.githubusercontent.com/home-assistant/supervised-installer/master/@https://github.com/laohuang112/supervised-installer/raw/master/@g' ./hassio_install.sh
     # interfaces 不替换ip设置
     sed -i 's@read answer < /dev/tty@answer=n@' ./hassio_install.sh
     # 清除警告等待
