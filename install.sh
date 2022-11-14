@@ -458,48 +458,24 @@ fi
 ## 检查系统版本
 check_sys
 
+
+
+
+
 ## 配置安装选项
-### 1.警告信息
-echo -e "(${title_num}). 你是否有“出国旅游”环境,如果没有建议停止使用 supervisor(hassio)"
-echo -e "    由于 supervisor 内的 addons 全部基于 github 存储,而 addons 镜像仓库地址全部改为 ghcr.io"
-echo -e "    ghcr.io 是 github 推出的容器镜像存储服务,目前国内还没有加速器,所以你安装 addons 将会很慢很慢"
-while true; do
-    read -p "请输入 y or n（默认 no):" selected
-    case ${selected} in
-        yes|y|YES|Y|Yes )
-            while true; do
-                read -p "请输入你“出国旅游”路由器的IP地址,作为 hassio_dns 上游 IP:" dns_ipaddress
-                if check_ip "${dns_ipaddress}" && check_proxy_status ;then
-                    echo -e "你输入IP地址为 ${dns_ipaddress}"
-                    break;
-                else
-                    warn "你的出国旅游环境不正常,请检查或者更换IP地址."
-                fi
-            done
-            break;
-            ;;
-        ''|no|n|NO|N|No)
-            error "用户选择退出脚本."
-            ;;
-        *)
-            echo "输入错误，请重新输入。"
-            ;;
-    esac
-done
-check_massage+=(" # ${title_num}. 是否有“出国旅游”环境:             ${yellow}是${plain}")
-let title_num++
+## 1. 跳过墙检测
 
 ## 2. 配置安装源
 
 echo -e "(${title_num}). 是否将系统源切换为清华源（目前支持 Debian Ubuntu Raspbian 三款系统）"
 while true; do
-    read -p "请输入 y or n（默认 yes):" selected
+    read -p "请输入 y or n（默认 no):" selected
     case ${selected} in
-        ''|yes|y|YES|Y|Yes )
+        yes|y|YES|Y|Yes )
             apt_sources=true
             break;
             ;;
-        no|n|NO|N|No)
+        ''|no|n|NO|N|No)
             apt_sources=false
             break;
             ;;
