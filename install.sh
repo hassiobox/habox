@@ -227,8 +227,7 @@ cat << EOF > /etc/docker/daemon.json
     "log-driver": "journald",
     "storage-driver": "overlay2",
     "registry-mirrors": [ 
-    "https://hub-mirror.c.163.com",
-    "https://docker.mirrors.ustc.edu.cn"
+    "https://0b84c31s.mirror.aliyuncs.com"
     ]
 }
 EOF
@@ -255,31 +254,11 @@ hassio_install(){
     if [ -z ${hassio_version} ] || [ -z ${homeassistant_version} ];then
         error "获取 hassio 版本号失败，请检查你网络与 https://version.home-assistant.io 连接是否畅通。"
     fi
-    local x=1
-    while true ; do
-        [[ $x -eq 10 ]] && error "获取 hassio 官方一键脚本失败，请检查你系统网络与 https://code.aliyun.com/ 的连接是否正常。"
-        warn "下载 hassio_install.sh 官方脚本 第${x}次"
-        download_file 'https://github.com/laohuang112/supervised-installer/raw/master/installer.sh' 'hassio_install.sh'
-        grep -q '#!/usr/bin/env bash' hassio_install.sh && break
-        ((x++))
-    done
-    chmod u+x hassio_install.sh
-    sed -i "s/HASSIO_VERSION=.*/HASSIO_VERSION=${hassio_version}/g" ./hassio_install.sh
-    # 替换链接到阿里云加速
-    sed -i 's@https://raw.githubusercontent.com/home-assistant/supervised-installer/master/@https://github.com/laohuang112/supervised-installer/raw/master/@g' ./hassio_install.sh
-    # interfaces 不替换ip设置
-    sed -i 's@read answer < /dev/tty@answer=n@' ./hassio_install.sh
-    # 清除警告等待
-    sed -i 's/sleep 10//' ./hassio_install.sh
-    # 等待 NetworkManager 重启完毕
-    reset_network_line_num=$(grep -n 'systemctl restart "${SERVICE_NM}"' ./hassio_install.sh | awk -F ':' '{print $1}')
-    add_shell='i=20\ninfo "Wait for networkmanages to start."\nwhile ! systemctl status ${SERVICE_NM} >/dev/null 2>&1; do\n    sleep 1\nlet i--\n    [[ i -eq 0 ]] && warn "networkmanages failed to start" && break\ndone'
-    sed -i "${reset_network_line_num} a${add_shell}" ./hassio_install.sh
 
     warn "从 hub.docker.com 下载 homeassistant/${machine}-homeassistant:${homeassistant_version}......"
     local i=10
     while true ;do
-        docker pull homeassistant/${machine}-homeassistant:${homeassistant_version}
+        docker pull ghcr.io/home-assistant/${machine}-homeassistant:${homeassistant_version}
         if [[ $? -eq 0 ]]; then
             docker tag homeassistant/${machine}-homeassistant:${homeassistant_version} homeassistant/${machine}-homeassistant:latest
             break;
@@ -292,8 +271,8 @@ hassio_install(){
         let i--
     done
     warn "开始 hassio 安装流程。(如出现 [Warning] 请忽略，无须理会)"
-    ./hassio_install.sh -m ${machine} --data-share ${data_share_path}
-    
+    dpkg -i homeassistant-supervised.deb
+ 
     if ! systemctl status hassio-supervisor > /dev/null ; then
         error "安装 hassio 失败，请将上方安装信息发送到论坛询问。脚本退出..."
     fi
