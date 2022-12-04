@@ -21,7 +21,7 @@ users_num=${#users[*]}
 
 title_num=1
 check_massage=()
-dns_ipaddress=""
+dns_ipaddress="8.8.8.8"
 
 ## 检查系统架构以区分 machine
 if [[ $(getconf LONG_BIT) == "64" ]]; then
